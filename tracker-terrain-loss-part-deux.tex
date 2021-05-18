@@ -170,7 +170,7 @@ tracker side-slope (\degree)&  2.37& 2.69&    2.66 \\
 
 \subsection{Uneven Terrain Shade Loss Model}
 % MinWah please update this section
-DNV has developed a simple uneven terrain shade loss model that uses high resolution United States Geological Survey (USGS) elevation maps to calculate east-west slopes in a discrete grid. Then we use a correlation to calculate the tracker terrain loss at each node in the grid based on the calculated east-west slope. Finally the resulting tracker terrain loss is a weighted average of loses for all nodes in the grid. The correlation was developed from running 240 combinations of GCR, diffuse-fraction, and mean absolute slope which simulated in PVsyst by changing horizon far shading to create uniform east-west row-to-row shading.
+DNV has developed a simple uneven terrain shade loss model that uses high resolution United States Geological Survey (USGS) elevation maps to calculate east-west slopes in a discrete grid. Then we use a correlation to calculate the tracker terrain loss at each node in the grid based on the calculated east-west slope. Finally the resulting tracker terrain loss is a weighted average of loses for all nodes in the grid. The correlation was developed from running 240 combinations of GCR, diffuse-fraction, and mean absolute slope which was simulated in PVsyst by changing horizon far shading to create uniform east-west row-to-row shading.
 
 \section{Results}
 
@@ -328,6 +328,7 @@ The last component of this study was to examine the hypothesis that splitting th
 
 \subsection{Uneven Terrain Shade Loss Model}
 % MinWah please update this section
+The results of the DNV simple model are shown in Table~\ref{table:uneven-terrain}. The tracker terrain loss estimated for the standard backtracking algorithm is 3.4\% which is more than the 2.2\% loss predicted by SolarFarmer versus horizontal but less than the 4.5\% loss versus a southern axis tilt but no east-west slope. The recovery estimated for an ideal custom tracker is similar to the complete recovery predicted by SolarFarmer when using slope-aware backtracking.
 
 \begin{table}[htbp]
 \caption{Uneven Terrain Shade Loss Model}
@@ -335,7 +336,7 @@ The last component of this study was to examine the hypothesis that splitting th
 \begin{tabular}{|c|c|c|c|}
 \hline
 \textbf{Averaging}& \textbf{\textit{Standard}}& \textbf{\textit{Ideal Custom}} & \textbf{\textit{Practical Custom }} \\
-\textbf{Method}& \textbf{\textit{Tracker}} & \textbf{\textit{Tracker}}         & \textbf{\textit{Tracker$^{\mathrm{a}}$}} \\
+\textbf{Method}   & \textbf{\textit{Tracker}} & \textbf{\textit{Tracker}}      & \textbf{\textit{Tracker$^{\mathrm{a}}$}} \\
 \hline
 Weighted Average& 3.4\%& 0.4\%& 1.2\% \\
 \hline
@@ -348,7 +349,7 @@ Uniform Slope   & 3.8\%&     0& 1.2\% \\
 \end{table}
 
 \section{Conclusions}
-The Hopewell Friends Solar power plant was simulated with SolarFarmer to calculate tracker terrain loss. This site has variable terrain and an average 4\% southwest slope. When using standard backtracking the tracker terrain loss for the entire site was 2.2\% when compared to horizontal and using hourly input. When dividing the site into two and three layouts, the tracker terrain loss decreased to 2.0\% and 1.8\% respectively. The simulations were repeated with 5-minute and 1-hour input data, but the tracker terrain loss change was marginal. A future study will examine the effects of input data resolution and backtracking algorithms. The simulations were also repeated with slope-aware backtracking algorithm, which indicated that for this particular site, the tracker terrain loss was caused by the east-west slope and was completely recovered by using slope-aware backtracking. Furthermore, the maximum gain was around 4\% when comparing trackers on terrain to an in-plane array using slope-aware backtracking, indicating that calculating tracker terrain loss against the horizontal for this particular site neglected the tilt-gain from south-facing slope.  Since this site had a mostly southwest slope, further work is needed to study many more sites, especially those with more complex or rolling terrain.
+The Hopewell Friends Solar power plant was simulated with SolarFarmer to calculate tracker terrain loss. This site has variable terrain and an average 4\% southwest slope. When using standard backtracking, the tracker terrain loss for the entire site was 2.2\% when compared to horizontal and using hourly input. When dividing the site into two and three layouts, the tracker terrain loss decreased to 2.0\% and 1.8\% respectively. The simulations were repeated with 5-minute and 1-hour input data, but the tracker terrain loss change was marginal. A future study will examine the effects of input data resolution and backtracking algorithms. The simulations were also repeated with slope-aware backtracking algorithm, which indicated that for this particular site, the tracker terrain loss was caused by the east-west slope and was completely recovered by using slope-aware backtracking. Furthermore, the maximum loss was around 4\% for trackers on terrain when compared to the best in-plane (not horizontal) array using slope-aware backtracking, indicating that calculating tracker terrain loss against the horizontal for this particular site neglects the tilt-gain from the south-facing slope. Since this site had a mostly southwest slope, further work is needed to study more sites, especially those with more complex terrain. SolarFarmer was compared to a simpler model developed by DNV. The simple DNV model estimate, 3.4\%, was bounded by the SolarFarmer predicted tracker terrain losses versus horizontal trackers with standard backtracking, 2.2\%, and trackers with a southern axis tilt but no east-west slope, 4.5\%. % MinWah please update this section
 
 \section*{Acknowledgment}
 
