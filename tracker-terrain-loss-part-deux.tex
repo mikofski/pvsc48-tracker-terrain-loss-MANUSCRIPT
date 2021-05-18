@@ -168,6 +168,9 @@ tracker side-slope (\degree)&  2.37& 2.69&    2.66 \\
 \end{center}
 \end{table}
 
+\subsection{Uneven Terrain Shade Loss Model}
+% MinWah please update this section
+DNV has developed a simple uneven terrain shade loss model that uses high resolution United States Geological Survey (USGS) elevation maps to calculate east-west slopes in a discrete grid. Then we use a correlation to calculate the tracker terrain loss at each node in the grid based on the calculated east-west slope. Finally the resulting tracker terrain loss is a weighted average of loses for all nodes in the grid. The correlation was developed from running 240 combinations of GCR, diffuse-fraction, and mean absolute slope which simulated in PVsyst by changing horizon far shading to create uniform east-west row-to-row shading.
 
 \section{Results}
 
@@ -322,6 +325,27 @@ When slope-aware backtracking is used, the tracker terrain losses using (\ref{eq
 \end{table}
 
 The last component of this study was to examine the hypothesis that splitting the array into multiple layouts each with their own axis tilt and cross-axis slope would decrease tracker terrain loss. We see that in general, for this particular site, splitting the site into 3 layouts increased performance and decreased the tracker terrain loss by about half a percent of the output. More importantly, if maximum performance is desired, then in-plane trackers are required, and splitting the array into layouts each with their own axis tilt and cross-axis slope can minimize the amount of cut and fill required to build the site by decreasing the range of pile heights to constrain the tracker axes all to the same plane.
+
+\subsection{Uneven Terrain Shade Loss Model}
+% MinWah please update this section
+
+\begin{table}[htbp]
+\caption{Uneven Terrain Shade Loss Model}
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Averaging}& \textbf{\textit{Standard}}& \textbf{\textit{Ideal Custom}} & \textbf{\textit{Practical Custom }} \\
+\textbf{Method}& \textbf{\textit{Tracker}} & \textbf{\textit{Tracker}}         & \textbf{\textit{Tracker$^{\mathrm{a}}$}} \\
+\hline
+Weighted Average& 3.4\%& 0.4\%& 1.2\% \\
+\hline
+Uniform Slope   & 3.8\%&     0& 1.2\% \\
+\hline
+\multicolumn{4}{l}{$^{\mathrm{a}}$70\% of ideal gain.}
+\end{tabular}
+\label{table:uneven-terrain}
+\end{center}
+\end{table}
 
 \section{Conclusions}
 The Hopewell Friends Solar power plant was simulated with SolarFarmer to calculate tracker terrain loss. This site has variable terrain and an average 4\% southwest slope. When using standard backtracking the tracker terrain loss for the entire site was 2.2\% when compared to horizontal and using hourly input. When dividing the site into two and three layouts, the tracker terrain loss decreased to 2.0\% and 1.8\% respectively. The simulations were repeated with 5-minute and 1-hour input data, but the tracker terrain loss change was marginal. A future study will examine the effects of input data resolution and backtracking algorithms. The simulations were also repeated with slope-aware backtracking algorithm, which indicated that for this particular site, the tracker terrain loss was caused by the east-west slope and was completely recovered by using slope-aware backtracking. Furthermore, the maximum gain was around 4\% when comparing trackers on terrain to an in-plane array using slope-aware backtracking, indicating that calculating tracker terrain loss against the horizontal for this particular site neglected the tilt-gain from south-facing slope.  Since this site had a mostly southwest slope, further work is needed to study many more sites, especially those with more complex or rolling terrain.
