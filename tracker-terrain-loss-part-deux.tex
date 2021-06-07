@@ -28,7 +28,7 @@
 \maketitle
 
 \begin{abstract}
-Trackers on variable terrain can incur electric mismatch losses from row-to-row shading, even with backtracking. Standard backtracking algorithms are designed only to eliminate row-to-row shade for trackers on level ground. Tracker terrain loss is the difference between the performance of trackers on level ground and the performance of trackers using standard backtracking algorithms on variable terrain. We used SolarFarmer to study tracker terrain loss by simulating the Hopewell Friends Solar power plant, which has an average 4\% southwest slope. We calculated a tracker terrain loss of 2.2\% when the entire site was modeled as one horizontal layout for both 5-minute and 1-hour input data. By subdividing the site into two and three layouts, the tracker terrain loss decreased to 2.0\% and 1.8\% respectively for hourly input. For this particular site, 5-minute input data did not significantly affect the tracker terrain loss, but using slope-aware backtracking completely recovered the loss. This study is a continuation of a previous study that prompted improvements in SolarFarmer's 3-dimensional tracker shading algorithm. The results of this study demonstrate that SolarFarmer can now be used to calculate tracker terrain loss. A comparison of the SolarFarmer results with an uneven terrain model developed by DNV using PVsyst produced similar results.
+Trackers on variable terrain can incur shade losses from row-to-row shading even with backtracking. Tracker terrain loss is the difference between the performance of trackers on horizontal ground and that on variable terrain. SolarFarmer was used to study tracker terrain loss by simulating the Hopewell Friends Solar power plant, which has an average 4\% southwest slope. The results yielded a tracker terrain loss of \textasciitilde2\% with standard backtracking. By subdividing the site from one to three layouts, the tracker terrain loss decreased \textasciitilde0.5\%. The 1-hour versus 5-minute input data did not significantly affect the tracker terrain loss, but using slope-aware backtracking completely recovered the 2\% loss. This study is a continuation of a previous study that prompted improvements in SolarFarmer's 3-dimensional tracker shading algorithm. The results of this study demonstrate that SolarFarmer can now be used to calculate tracker terrain loss. A comparison of the SolarFarmer results with a separate uneven terrain model developed by DNV using PVsyst produced similar results.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -36,17 +36,21 @@ trackers, terrain, losses, backtracking
 \end{IEEEkeywords}
 
 \section{Introduction}
-Trackers increase energy output of PV systems by following the sun, maximizing the area of sunlight incident on the panels. However, most silicon modules are susceptible to electrical mismatch caused by uneven shade, therefore, trackers typically "backtrack" to avoid  row-to-row shade occurring after sunrise and before sunset. The backtracking algorithms for flat horizontal and sloped ground are described by closed-form expressions \cite{Marion2013,Anderson2020}, but there is no general solution for terrain with variable slopes. If the standard backtracking algorithms are used for trackers on variable terrain, then row-to-row shading will occur, and therefore typical silicon modules will incur electrical mismatch losses. The loss has been called the "tracker terrain loss" and can be expressed as the difference between the performance of trackers on flat horizontal versus variable terrain. Evaluating tracker terrain loss is important for estimating energy production of systems with uneven terrain; most solar energy simulation models currently available in the industry are limited to modeling standard tracking on flat horizontal terrain or N-S tracker axis tilt.
+Trackers increase energy output of PV systems by following the sun, maximizing the area of sunlight incident on the modules. However, most silicon modules are susceptible to electrical mismatch caused by uneven shade. Therefore, trackers typically "backtrack" to avoid  row-to-row shade occurring after sunrise and before sunset. Backtracking algorithms exist for horizontal ground ("standard backtracking") and uniformly sloped ground ("slope-aware backtracking"), which are described by closed-form expressions \cite{Marion2013,Anderson2020}. However, there is no general solution for terrain with variable, non-uniform slopes. If these backtracking algorithms are used for trackers on variable terrain, then row-to-row shading will occur, and typical silicon modules will incur electrical mismatch losses. 
 
-To study tracker terrain loss in detail, SolarFarmer \cite{Mikofski_8547323} was used to perform full 3-dimensional modeling of the shade and irradiance on the trackers which can be in any position on any terrain. The model calculates full sub-module electrical mismatch to determine the performance of the PV system at each time step. This study is a continuation from last year \cite{Mikofski_9300381} which concluded that the prior methods used in SolarFarmer were too coarse to resolve row-to-row shade for trackers during backtracking. Therefore, over the past year, a new hybrid 3-dimensional geometric shade algorithm was implemented in SolarFarmer to calculate the row-to-row shade on trackers at each time step exactly without any approximations. This paper presents the results of the new SolarFarmer methods applied to the same tracker simulations from last year, which included 1) dividing the array into more granular layouts and 2) testing "in-plane" and "follows terrain" tracker placements. In addition, this study expands the results by testing: 3) standard and slope-aware backtracking algorithms and 4) 5-minute and 1-hour input data resolution, to explore whether these factors have an impact on tracker terrain losses. Lastly, the SolarFarmer results were compared to a separate tracker terrain loss model developed by DNV. 
+In particular, standard backtracking on east-west (E-W) slopes causes shade loss at one end of the day when the array is facing an E-W upslope (the array needs to be flatter to avoid shade). At the other end of the day when the array is facing an E-W downslope, the array suffers from irradiance loss (the array can be steeper and track the sun for longer without incurring shade). The shade losses dominate energy impact. N-S slopes also impact performance. In the northern hemisphere, south-facing slopes lead to an energy gain, and north-facing slopes lead to an energy loss. Altogether, the impact of terrain has been called the "tracker terrain loss" and can be expressed as the difference between the performance of trackers on variable terrain versus horizontal. 
+
+Evaluating tracker terrain loss is important for estimating system energy production. Most solar energy simulation models currently available in the industry are limited to modeling standard backtracking on horizontal ground or with north-south (N-S) tracker axis tilt. Also notable is that various custom backtracking algorithms exist in the industry. Slope-aware backtracking is only one type of non-standard backtracking. Different algorithms reduce shade loss on terrain in different ways, leading to varying tracker terrain losses. 
+
+To study tracker terrain loss in detail, SolarFarmer \cite{Mikofski_8547323} was used to perform full 3-dimensional (3D) modeling of shade and irradiance on the trackers, which can be in any position on any terrain. The model calculates full sub-module electrical mismatch to determine the performance of the PV system at each time step. This study is a continuation from last year \cite{Mikofski_9300381} which concluded that the prior methods used in SolarFarmer were too coarse to resolve row-to-row shade for trackers during backtracking. Therefore, over the past year, a new hybrid 3D geometric shade algorithm was implemented in SolarFarmer to calculate the row-to-row shade on trackers at each time step exactly without approximations. This paper presents the results of the new SolarFarmer methods applied to the same tracker simulations from last year, which included 1) dividing the array into layouts of varying granularity and 2) placing the trackers "in-plane" and "following terrain". In addition, this study expands the results with 3) standard and slope-aware backtracking algorithms and 4) 5-minute and 1-hour input data resolution, to explore whether these factors have an impact on tracker terrain losses. Lastly, the SolarFarmer results were compared to a separate tracker terrain loss model developed by DNV using PVsyst. 
 
 \section{Methods}
 
 \subsection{Site Characteristics}
 
-The Hopewell Friends Solar power plant is a single-axis array funded by the Department of Energy and built by Cypress Creek Renewables \cite{CypressCreekRenewables2019} near Asheboro, NC at a latitude and longitude of 35.627994$^\circ$ and -79.872853$^\circ$ respectively. The site is asymmetric, with 25-qty variable length rows of 2-in-portrait and 18-modules wide single-axis trackers. The modules are 1.978-meters long, and the rows are spaced about 7.8-meters apart (GCR ~51\%). There are 18-qty Longi LR6-72BP-360 360-watt bifacial modules per string, and three strings per each Huawei SUN2000-25KTL-US 25-kW inverter. The inverters each have three inputs (one string per input).
+The Hopewell Friends Solar power plant is a single-axis array funded by the Department of Energy and built by Cypress Creek Renewables \cite{CypressCreekRenewables2019} near Asheboro, NC at a latitude and longitude of 35.627994$^\circ$ and -79.872853$^\circ$ respectively. The site is asymmetric, with 25-qty variable length rows of 2-in-portrait and 18-modules wide single-axis trackers. The modules are 1.98-meters long, and the rows are spaced 7.8-meters apart (GCR \textasciitilde 51\%). There are 18-qty Longi LR6-72BP 360-watt bifacial modules per string, and three strings per each Huawei SUN2000-25KTL-US 25-kW inverter. The inverters each have three MPPT inputs (one string per input).
 
-The terrain has a generally southwestern slope as shown in the contour map in Fig.~\ref{fig:hopewell_contour_map} with slightly steeper southern slopes on the east side of the array and milder western slopes on the north side of the array. The maximum and average slopes for each west-east aisle in the array are summarized in Table~\ref{table:ew-slope-summary} starting with aisle 1 at the north tip of the array. The maximum and average north-south slopes for every 5 rows are shown in Table~\ref{table:row-slope-summary} starting with row 1 at the west side of the array.
+The terrain has a generally southwestern slope (average \textasciitilde 4\% SW slope) as shown in the contour map in Fig.~\ref{fig:hopewell_contour_map}. The array has slightly steeper southern slopes on the east side and milder western slopes on the north side. The maximum and average slopes for each E-W aisle in the array are summarized in Table~\ref{table:ew-slope-summary}. The maximum and average N-S slopes for every 5 tracker rows are shown in Table~\ref{table:row-slope-summary}.
 
 \begin{figure}[htbp]
 \centerline{\includegraphics[width=9cm]{Hopewell_Civil_Base.jpg}}
@@ -108,31 +112,39 @@ The terrain has a generally southwestern slope as shown in the contour map in Fi
 
 \subsection{Model Simulation}
 
-The system was modeled using SolarFarmer \cite{Mikofski_8547323} which allows parallel trackers to be oriented in any direction on any slope either in a plane or following the terrain. Trackers in SolarFarmer can backtrack on any arbitrary slope using a slope aware backtracking algorithm \cite{Anderson2020}. Normally backtracking avoids row-to-row shading while minimizing the angle of incidence to maximize output energy. However this is only true for systems constrained to a plane, and single axis trackers following the terrain may shade each other even while backtracking. As shown in Fig.~\ref{terrain-shade} row-to-row shading can occur wherever the terrain deviates significantly from the mono-plane that the trackers assume for backtracking calculations, and therefore shading can vary across the site as the terrain varies.
+The system was modeled using SolarFarmer \cite{Mikofski_8547323} which allows parallel trackers to be oriented on any slope either in a plane ("in-plane" tracker placement) or following the terrain ("follows terrain" tracker placement). Fig.~\ref{tracker-placement} shows these configurations. In-plane represents that the tracker axes in the array form a plane. The plane may have N-S and/or E-W tilt. For illustration purposes, the in-plane example in Fig.~\ref{tracker-placement} only has E-W tilt. In "follows terrain" tracker placement, the tracker axes are not coplanar; the orientation of the tracker axes varies along with the contours of the terrain at a specified height from the ground. In practical design, tracker pile heights can be varied to reduce the undulations of the terrain slopes such that the array slopes formed by the top-of-piles have less variation than the terrain slope.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=9cm]{tracker-placement.jpg}}
+\caption{(Top) "in-plane" tracker placement - the green line guides the eye showing the tracker axes form the same plane. (Bottom) "follows terrain" tracker placement - tracker rows follow terrain contour in N-S and E-W directions.}
+\label{tracker-placement}
+\end{figure}
+
+Trackers in SolarFarmer can backtrack on any arbitrary slope using standard backtracking or slope-aware backtracking \cite{Anderson2020}. These backtracking algorithms avoid row-to-row shading while minimizing the angle of incidence to maximize output energy. However, this shade avoidance is true only for systems constrained to a plane. In standard backtracking, the array stays shade-free only when installed on flat horizontal ground. In slope-aware backtracking, the array remains shade-free only when the tracker axes are in-plane. On the contrary, trackers following the terrain (not in a plane) may shade each other despite backtracking. As shown in Fig.~\ref{terrain-shade} with "follows terrain" tracker placement, row-to-row shading can occur wherever the terrain deviates significantly from the mono-plane that the trackers assume for backtracking calculations. Triangular shadows can occur with N-S and E-W variations from one tracker axis to the next. 
 
 \begin{figure}[htbp]
 \centerline{\includegraphics[width=9cm]{Hopewell-Friends-SolarFarmer-shade-follows-std.png}}
-\caption{SolarFarmer simulation of row-to-row shading during backtracking for single-axis trackers following the sloping terrain at the Hopewell, NC, at 5:40 AM on June 17, 2019. Note that due to differences in north-south slopes between rows, some shadows are triangular, and therefore, shade is non-uniform accross the array.}
+\caption{SolarFarmer simulation of row-to-row shading during backtracking for trackers following the sloping terrain at the Hopewell, NC, at 5:40 AM on June 17, 2019. Due to differences in north-south slopes between rows, some shadows are triangular and shade is non-uniform across the array.}
 \label{terrain-shade}
 \end{figure}
 
-The current version of SolarFarmer offers both 2D and 3D simulations. For this study the 3D simulation was used to allow trackers to follow the terrain. The 3D simulation uses a combination of two techniques to calculate shading on the trackers: a geometric solution to calculate row-to-row shading for the beam component, and a software rasterization approach that renders the scene on “hemicubes” located at the center of each module for the diffuse component. 
+The current version of SolarFarmer offers both 2D and 3D simulations. For this study, 3D simulation was used to allow trackers to follow the terrain. The 3D simulation uses a combination of two techniques to calculate shading on the trackers: a geometric solution to calculate row-to-row shading for the beam component, and a software rasterization approach that renders the scene on “hemicubes” located at the center of each module for the diffuse component. 
 
-The geometric solution results in sufficient accuracy to determine shade, incident irradiance, and any electrical mismatch, and therefore the resulting energy output on trackers at any arbitrary timestep, rotation, and terrain. It does not currently consider shading from arbitrary obstacles or the terrain, but for this study there were no other shading obstacles other than the trackers themselves.
+The geometric solution results in sufficient accuracy to determine shade, incident irradiance, and electrical mismatch, and therefore determines the resulting energy output on trackers at any arbitrary timestep, rotation, and terrain. The model does not currently consider shading from arbitrary obstacles or the terrain, but for this study there were no other shading obstacles other than the trackers themselves.
 
-The software rasterization approach (used in the previous paper \cite{Mikofski_9300381}) is required to calculate the diffuse shading component for the trackers. Although less computationally intense than ray-tracing, the software rasterization approach is still more complex than the 2D model, so this calculation is further simplified by binning the tracker positions at all time-steps into 10° buckets, and each time-step can then be associated with a tracker position bin. The calculation then loops over the typically twelve tracker position bins and renders the full 3D scene at a representative rotation for the bin. The shading obstacles are then projected onto pixels of each hemicube, and the results are transformed into a cache of shaded or not shaded state for each 1° azimuth and zenith bin for each hemicube. These are then transformed into a diffuse component depending on how much of the sky is visible by each hemicube. A single hemicube at the center of each module was deemed sufficient to determine diffuse sky irradiance incident in the plane of array for the entire module as the view factor for diffuse sky varies very little on the front side of the module (around 8\% difference between top and bottom according to the 2D model \cite{Mikofski_8980572}). Also, when incorporating the diffuse component in the energy calculation an average of the individual module diffuse sky irradiances over the site is used per time-step, and along with approximations introduced with the tracker position binning, any finer-resolution hemicube calculations would have little effect on the result.
+The software rasterization approach (used in the previous paper \cite{Mikofski_9300381}) is required to calculate the diffuse shading component for the trackers. Although less computationally intense than ray-tracing, the software rasterization approach is still more complex than the 2D model, so the complex calculation is further simplified by binning the tracker positions at all time-steps into 10° buckets, and each time-step can then be associated with a tracker position bin. The calculation then loops over the typically twelve tracker position bins (+/-60deg tracker rotation angle) and renders the full 3D scene at a representative rotation for the bin. The shading obstacles are then projected onto pixels of each hemicube, and the results are transformed into a cache of shaded or not shaded state for each 1° azimuth and zenith bin for each hemicube. These are then transformed into a diffuse component depending on how much of the sky is visible to each hemicube. A single hemicube at the center of each module was deemed sufficient to determine diffuse sky irradiance incident in the plane of array for the entire module, as the view factor for diffuse sky varies very little on the front side of the module (around 8\% difference between top and bottom according to the 2D model \cite{Mikofski_8980572}). Also, when incorporating the diffuse component in the energy calculation, an average of the individual module diffuse sky irradiances over the site is used per time-step. Along with approximations introduced with the tracker position binning, any finer-resolution hemicube calculations would have little effect on the result.
 
 The combination of these two shading approaches results in a sufficiently accurate solution that runs in an acceptable computation time.
 
 \subsection{Model Site Layouts}
 
-The Hopewell Friends Solar array was modeled with 111-qty trackers with a total of 222 strings for a total DC size of 1.44-MW, which is slightly smaller than the specified size of 1.45-MW. Also the modeled site has 74 inverters with a DC/AC ratio less than one to remove the effects of clipping, versus the actual site which has only 45 inverters and a DC/AC ratio of 1.3. Also the simulated tracker spacing is uniform throughout the array and the tracker aisles are aligned, which also differs from the site specifications. Finally the modules were treated as monofacial, because bifacial modeling is currently only possible for 2-dimensional simulations and the 3-dimensional modeling was needed for this study to capture the terrain. These changes were made for ease of modeling and to remove factors such as variable row spacing and other artifacts that could confound the results, since the effect of slope is the focus of this study.
+The Hopewell Friends Solar array was first modeled with 111-qty trackers with a total of 222 strings for a total DC size of 1.44-MW, which is slightly smaller than the specified size of 1.45-MW. Second, the site was modeled with 74 inverters, creating a DC/AC ratio less than one, to remove the effects of clipping. The actual site has only 45 inverters and a DC/AC ratio of 1.3. Third, the tracker spacing was made uniform throughout the array with tracker aisles aligned for the model, which differs slightly from the site layout. Finally, the modules were treated as monofacial, because bifacial modeling is currently only possible for 2D simulations and 3D modeling was needed for this study to capture the terrain. These changes were made for ease of modeling and to remove factors such as variable row spacing and other artifacts that could confound the effect of sloped terrain.
 
-Fig.~\ref{fig:layouts} shows the layout sections used for modeling a single layout, 2 layouts, and 3 layouts. As shown in Table~\ref{table:system-summary}, subdividing the array results in layouts with different orientations, so the systems will track slightly differently. Each model was then simulated in both tracker placement modes to determine the tracker terrain loss. The "in-plane" mode positions all trackers in the same plane, but may result in some trackers exceeding the maximum specified height above the ground. The "follow terrain" mode positions the trackers at the minimum specified height. The "layout-plane" in Table~\ref{table:system-summary} specifies the plane of the trackers for "in-plane" mode and is the plane that determines backtracking for "follow terrain" mode. Each model was simulated with both standard \cite{Marion2013} and slope-aware \cite{Anderson2020} backtracking, and both 5-minute and hourly irradiance input, which was obtained from the NREL Physical Solar Model v3 (PSM3) \cite{Sengupta2018}. A total of 24 simulations were performed: 8 runs for each layout (2 placement models, 2 backtracking algorithms, and 2 input data resolutions).
+Fig.~\ref{fig:layouts} shows the layout sections used for modeling. The array was divided into layouts of varying granularity for simulations. As shown in Table~\ref{table:system-summary}, subdividing the array creates layouts with different orientations, so the systems will track slightly differently. Each model was then simulated in both tracker placement modes to determine the tracker terrain loss. The "in-plane" mode positions all trackers in the same plane, but may result in some trackers exceeding the maximum specified height above the ground. The "follow terrain" mode positions the trackers at the minimum specified height above ground. The "layout-plane" in Table~\ref{table:system-summary} specifies the plane of the trackers for the "in-plane" backtracking mode and is also the plane that determines backtracking for "follows terrain" mode. Each model was simulated with both standard \cite{Marion2013} and slope-aware \cite{Anderson2020} backtracking, and both 5-minute and hourly irradiance input, which was obtained from the NREL Physical Solar Model v3 (PSM3) \cite{Sengupta2018}. A total of 24 simulations were performed: 8 runs for each layout (2 placement models, 2 backtracking algorithms, and 2 input data resolutions).
 
 \begin{figure}[htbp]
 \centerline{\includegraphics[width=9cm]{layouts.jpg}}
-\caption{Sketch of layout sections. The 1-layout model combines Sections 1 through 3, the 2-layout model uses Section 1 as-is and combines Section 2 and 3, the 3-layout model uses each Section as-is. Section \#1 (54 strings), Section\#2 (30 strings), Section \#3 (27 strings).}
+\caption{Sketch of layout sections. The 1-layout model combines Sections 1, 2, and 3; the 2-layout model uses Section 1 as-is and combines Section 2 and 3; the 3-layout model uses each section as-is. Section 1 (54 strings), Section 2 (30 strings), Section 3 (27 strings).}
 \label{fig:layouts}
 \end{figure}
 
@@ -168,11 +180,10 @@ tracker side-slope (\degree)&  2.37& 2.69&    2.66 \\
 \end{center}
 \end{table}
 
-\subsection{Uneven Terrain Shade Loss Model}
-% MinWah & Abhi please update this section
-Separate from SolarFarmer, DNV has developed an independent model to estimate tracker terrain loss. The model calculates the energy impact from standard tracking and slope-aware tracking on E-W slopes compared to flat horizontal ground. For standard tracking, the energy impact is governed by the shade loss when trackers are facing upslope. For slope-aware tracking, the energy impact also includes the energy gain when the array stays at a steeper angle, pointing more directly towards the sun, when the trackers are facing downslope. A post-process model was developed to calculate the row-to-row shade loss for standard tracking and slope-aware tracking, using inputs of E-W ground slope, GCR, and PVsyst parameters. 240 simulations were run in PVsyst across 5 locations with diffuse fractions 0.26-0.5, 3 GCRs (0.3-0.5), and 16 E-W ground slopes (0.1-25\%). The post-processing model was applied to each PVsyst simulation output (hourly data) to calculate the shade losses. From these 240 simulation results, two correlation equations were developed which determine shade losses using only diffuse fraction, ground cover ratio, and E-W ground slope. One equation determines the shade loss from standard tracking on E-W slopes and a second equation determines the shade loss from slope-aware backtracking on E-W slope. 
+\subsection{Uneven Terrain DNV Shade Loss Model}
+Separate from SolarFarmer, DNV has developed an independent model to estimate tracker terrain loss. The model calculates the energy impact from standard backtracking and slope-aware backtracking on E-W slopes compared to flat horizontal ground. The model accounts for the shade loss when trackers are facing an E-W upslope and the irradiance loss when the trackers are facing an E-W downslope. The N-S slopes and energy impact are determined separately, as discussed further below. A post-process model was developed to calculate the row-to-row shade loss for standard tracking and slope-aware tracking, using inputs of E-W ground slope, ground cover ratio (GCR), and PVsyst parameters. Simulations were run in PVsyst across 5 locations with diffuse fractions 0.26-0.5, 3 GCRs (0.3-0.5), and 16 E-W ground slopes (0.1-25\%). The post-processing model was applied to each PVsyst simulation output (hourly data) to calculate the shade losses. From the results of these 240 simulations, two correlation equations were developed which determine shade losses using only 3 factors: diffuse fraction, ground cover ratio, and E-W ground slope. One equation determines the shade loss from standard tracking on E-W slopes and a second equation determines the shade loss from slope-aware backtracking on E-W slope. 
 
-Using USGS data, the site terrain is analyzed into E-W slope bins. The shade losses are determined for each slope bin using the correlation equations, then the weighted average is taken to result in the overall E-W slope shade losses for standard tracking and slope-aware tracking over the entire site. The USGS data is also analyzed into N-S slope bins to determine the average north-facing slopes and south-facing slopes. The north-facing and south-facing tracker axis tilts can then be applied in PVsyst to determine the N-S slope energy impact.
+Using US Geographical Survey (USGS) data, the site terrain is analyzed into E-W slope bins. The shade losses are determined for each slope bin using the correlation equations, then the weighted average is taken to derive the overall E-W slope shade losses for standard tracking and slope-aware tracking over the entire site. The USGS data is also analyzed into N-S slope bins to determine the average north-facing slopes and south-facing slopes. The north-facing and south-facing tracker axis tilts can then be applied in PVsyst to determine the N-S slope energy impact.
 
 
 \section{Results}
@@ -180,18 +191,29 @@ Using USGS data, the site terrain is analyzed into E-W slope bins. The shade los
 The tables in this section contain total global incident (GI) insolation in $kWh/m^2$, energy yield in $kWh/kW_p$, the percent of plane of array irradiance lost to shading, and the percent of output lost to electrical mismatch compared to the maximum power point of the array. These results are used to calculate the tracker terrain loss, using the following formula:
 
 \begin{equation}
-\text{Tracker Terrain Loss} = 1 - \frac{Y_\text{terrain}}{Y_\text{plane}}\label{eq:tracker-terrain-loss}
+\text{Tracker Terrain Loss} = 1 - \frac{Y_\text{terrain}}{Y_\text{horizontal}}\label{eq:tracker-terrain-loss}
 \end{equation}
 
-In (\ref{eq:tracker-terrain-loss}), $Y_\text{terrain}$ and $Y_\text{plane}$ are the energy yield in $kWh/kW_p$ of the trackers following the terrain and in a mono-plane respectively. The simulated energy yield for 5-minute input data with standard backtracking is shown in Table~\ref{table:standard-5min}. The rows refer to two simulations, in-plane and following terrain, for each layout model. The calculated tracker terrain loss using (\ref{eq:tracker-terrain-loss}) is nearly zero regardless of how many layouts the site is split into because standard backtracking on sloping terrain will incur electrical mismatch as shown in Table~\ref{table:standard-5min}. Even aligning the tracker axes into mono-planes as given in Table ~\ref{table:system-summary} will still have an east-west cross-axis slope and is therefore \textit{not} horizontal. When using the standard backtracking algorithm with a westward slope, there will be shading and electrical losses in the morning because backtracking \textit{stops} too early causing row-to-row shading, and there will be irradiance losses in the afternoon because backtracking \textit{starts} too early causing cosine losses when the projected solar zenith is not normal to the plane of the array.
+$Y_\text{terrain}$ and $Y_\text{horizontal}$ are the energy yield in $kWh/kW_p$ of the trackers on variable terrain and flat horizontal ground, respectively. The simulated energy yield for 5-minute input data for standard backtracking on horizontal ground, standard backtracking on terrain, and slope-aware backtracking on terrain is shown in Table~\ref{table:energy-5min}. The corresponding terrain losses compared to horizontal are shown in Table~\ref{table:terrain-loss-5min}. 
+
 
 \begin{table}[htbp]
-\caption{Energy Yield for Tracker Layouts for 5-minute Input Data with Standard Backtracking}
+\caption{Energy Yield for Tracker Layouts for 5-minute Input Data}
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|c|}
 \hline
 \textbf{Lay-}& \textbf{\textit{Terrain}}& \textbf{\textit{GI}}&        \textbf{\textit{Yield}}&        \textbf{\textit{Shading}}& \textbf{\textit{Mismatch}} \\
 \textbf{outs}& \textbf{\textit{Mode}}&    \textbf{\textit{$kWh/m^2$}}& \textbf{\textit{$kWh / kW_p$}}& \textbf{\textit{\%}}&      \textbf{\textit{\%}} \\
+\hline
+\multicolumn{6}{|c|}{\textit{Standard backtracking}} \\
+\hline
+1& Horiz.& 2024.1&  1662.1& 3.1& 0 \\
+\hline
+2& Horiz.& 2024.1&  1663.5& 3.0& 0 \\
+ \hline
+3& Horiz.& 2024.1&  1664.8& 2.9& 0 \\
+\hline
+\multicolumn{6}{|c|}{\textit{Standard backtracking}} \\
 \hline
 1& In Plane& 2044.0&  1628.6& 2.6& 3.4 \\
  & Follow&         &  1625.8& 2.7& 3.4 \\
@@ -202,44 +224,7 @@ In (\ref{eq:tracker-terrain-loss}), $Y_\text{terrain}$ and $Y_\text{plane}$ are 
 3& In Plane& 2046.5&  1637.1& 2.6& 3.1 \\
  & Follow&         &  1636.4& 2.6& 3.1 \\
 \hline
-\end{tabular}
-\label{table:standard-5min}
-\end{center}
-\end{table}
-
-The result that trackers following the terrain have the same loss as trackers in a plane might indicate that non-uniform shade from variable terrain has an insignificant effect on performance compared to losses from standard backtracking on sloping terrain. To study this further we compare the standard backtracking to a horizontal plane and a plane with the same axis tilt but no east-west slope. The results in Table~\ref{table:horizontal-5min} show the horizontal results, but the no east-west slopes simulations were only run for hourly results, so we'll examine those results in Table~\ref{table:no-east-west-5min}. Calculating the terrain loss using (\ref{eq:tracker-terrain-loss}) but using the horizontal plane results from Table~\ref{table:horizontal-5min} yields terrain losses of 2.2\%, 1.9\%, and 1.7\% for 1, 2, and 3 layouts respectively.
-
-\begin{table}[htbp]
-\caption{Energy Yield for Tracker Layouts for 5-minute Input Data with Standard Backtracking on Horizontal Ground or Ground with no East-West slope}
-\begin{center}
-\begin{tabular}{|c|c|c|c|c|c|}
-\hline
-\textbf{Lay-}& \textbf{\textit{Terrain}}& \textbf{\textit{GI}}&        \textbf{\textit{Yield}}&        \textbf{\textit{Shading}}& \textbf{\textit{Mismatch}} \\
-\textbf{outs}& \textbf{\textit{Mode}}&    \textbf{\textit{$kWh/m^2$}}& \textbf{\textit{$kWh / kW_p$}}& \textbf{\textit{\%}}&      \textbf{\textit{\%}} \\
-\hline
-1& Horiz.& 2024.1&  1662.1& 3.1& 0 \\
- & No EW &       &     ---& ---& 0 \\
-\hline
-2& Horiz.& 2024.1&  1663.5& 3.0& 0 \\
- & No EW &       &     ---& ---& 0 \\
-\hline
-3& Horiz.& 2024.1&  1664.8& 2.9& 0 \\
- & No EW &       &     ---& ---& 0 \\
-\hline
-\end{tabular}
-\label{table:horizontal-5min}
-\end{center}
-\end{table}
-
-Table~\ref{table:slope-5min} repeats the simulations with slope-aware backtracking. The calculated tracker terrain losses are now significant compared to the standard backtracking case because slope-aware backtracking eliminates any row-to-row shading and electrical mismatch losses for trackers on non-horizontal planes. The tracker terrain loss using (\ref{eq:tracker-terrain-loss}) is 2.4\%, 1.9\%, and 1.6\% for 1, 2, and 3 layouts respectively. Interestingly, if the slope-aware backtracking over terrain is compared to the horizontal results in Table~\ref{table:horizontal-5min}, the tracker terrain loss is about zero. Slope-aware backtracking improves performance versus standard backtracking for the arrays over terrain by 2.0\%, 2.2\%, and 2.2\% for 1, 2, and 3 layouts respectively. So to summarize, from horizontal there is about a 2\% loss for trackers on terrain, but there's a 2\% boost from slope-aware backtracking that cancels out the tracker terrain loss.
-
-\begin{table}[htbp]
-\caption{Energy Yield for Tracker Layouts for 5-minute Input Data with Slope-Aware Backtracking}
-\begin{center}
-\begin{tabular}{|c|c|c|c|c|c|}
-\hline
-\textbf{Lay-}& \textbf{\textit{Terrain}}& \textbf{\textit{GI}}&        \textbf{\textit{Yield}}&        \textbf{\textit{Shading}}& \textbf{\textit{Mismatch}} \\
-\textbf{outs}& \textbf{\textit{Mode}}&    \textbf{\textit{$kWh/m^2$}}& \textbf{\textit{$kWh / kW_p$}}& \textbf{\textit{\%}}&      \textbf{\textit{\%}} \\
+\multicolumn{6}{|c|}{\textit{Slope-aware backtracking}} \\
 \hline
 1& In Plane& 2044.9&  1700.0& 1.9& 0 \\
  & Follow&         &  1658.9& 2.1& 2.1 \\
@@ -251,43 +236,55 @@ Table~\ref{table:slope-5min} repeats the simulations with slope-aware backtracki
  & Follow&         &  1673.9& 2.0& 1.5 \\
 \hline
 \end{tabular}
-\label{table:slope-5min}
+\label{table:energy-5min}
 \end{center}
 \end{table}
 
-Table~\ref{table:standard-1hr}, Table~\ref{table:no-east-west-5min}, and Table~\ref{table:slope-1hr} show results for both backtracking algorithms with hourly input data. There are very small increases in output and global incident irradiance compared to the 5-minute input that we believe are because 5-minute input more accurately captures backtracking which often occurs over only part of an hour. We will present a separate study to examine this issue more closely later this year.
 
 \begin{table}[htbp]
-\caption{Energy Yield for Tracker Layouts for 1-hour Input Data with Standard Backtracking}
+\caption{Tracker Terrain Loss for 5-minute Input Data}
 \begin{center}
-\begin{tabular}{|c|c|c|c|c|c|}
+\begin{tabular}{|c|c|c|c|}
 \hline
-\textbf{Lay-}& \textbf{\textit{Terrain}}& \textbf{\textit{GI}}&        \textbf{\textit{Yield}}&        \textbf{\textit{Shading}}& \textbf{\textit{Mismatch}} \\
-\textbf{outs}& \textbf{\textit{Mode}}&    \textbf{\textit{$kWh/m^2$}}& \textbf{\textit{$kWh / kW_p$}}& \textbf{\textit{\%}}&      \textbf{\textit{\%}} \\
+\textbf{Lay-}& \textbf{\textit{Standard}}& \textbf{\textit{Slope-aware}}& \textbf{\textit{$\Delta$ energy, slope-}} \\
+\textbf{outs}& \textbf{\textit{backtrack}}&    \textbf{\textit{backtrack}}& \textbf{\textit{aware vs. standard}} \\
 \hline
-1& In Plane& 2049.9&  1628.9& 2.8& 3.6 \\
- & Follow&         &  1631.1& 2.6& 3.6 \\
+\multicolumn{4}{|c|}{\textit{In-plane}} \\
 \hline
-2& In Plane& 2051.5&  1635.0& 2.7& 3.4 \\
- & Follow&         &  1635.9& 2.6& 3.4 \\
+1& -2.0\% & +2.3\% &  +4.4\% \\
 \hline
-3& In Plane& 2052.7&  1639.8& 2.6& 3.2 \\
- & Follow&         &  1640.3& 2.6& 3.2 \\
+2& -1.8\% & +2.2\% &  +4.1\% \\
+\hline
+3& -1.7\% & +2.2\% &  +4.0\% \\
+\hline
+\multicolumn{4}{|c|}{\textit{Follows terrain}} \\
+\hline
+1& -2.2\% & -0.2\% &  +2.0\% \\
+\hline
+2& -1.9\% & +0.3\% &  +2.2\% \\
+\hline
+3& -1.7\% & +0.5\% &  +2.3\% \\
 \hline
 \end{tabular}
-\label{table:standard-1hr}
+\label{table:terrain-loss-5min}
 \end{center}
 \end{table}
 
-The tracker terrain losses calculated with (\ref{eq:tracker-terrain-loss}) for the standard-backtracking cases in Table~\ref{table:standard-1hr} are close to zero as they were for the 5-minute input. Therefore, as with the 5-minute input, we compare the arrays over terrain to arrays constrained to a horizontal plane and to a plane with an axis tilt but no east-west slope in Table~\ref{table:no-east-west-5min}. Compared to horizontal, arrays over terrain using standard backtracking had tracker terrain losses of 2.2\%, 2.0\%, and 1.8\% with 1, 2, and 3 layouts respectively. However, this site has a south-facing slope that adds a tilt-gain, because the site is in the northern hemisphere, so the sun is to the south. If we compare the array over terrain to an array constrained to a plane with a southern axis tilt but no east-west slope, we get a tracker terrain loss of 4.5\%, 4.0\%, and 3.9\%. Therefore for this particular site with southwest sloping terrain, comparing the performance of the array on terrain versus horizontal underestimates the tracker terrain loss, because it disregards the tilt-gain from the the southern axis tilt.
+Due to the west-facing slope, standard backtracking will result in shading and electrical losses in the morning because backtracking \textit{stops} too early (the array needs to be at a flatter angle to avoid shade). In the afternoon, there will be irradiance losses because backtracking \textit{starts} too early (the tracker starts moving away from the sun prematurely when the array can be at a steeper angle without shade). Standard backtracking incurs \textasciitilde 2\% tracker terrain loss and the in-plane and follows terrain results were similar. This result might indicate that for standard backtracking, the E-W slope shade loss was dominant over shade irregularities that are produced by follows terrain tracker placement compared to in-plane.
+
+In contrast to standard backtracking, slope-aware backtracking accounts for planar ground slopes and eliminates row-to-row shading for trackers on non-horizontal planes. This behavior can be seen from Table~\ref{table:energy-5min} with the 0\% electrical mismatch loss for in-plane slope-aware backtracking. As a result, slope-aware backtracking improves performance over standard backtracking. Due to the south-facing slope of this site, a tracker terrain \textit{gain} can be achieved with slope-aware backtracking, as shown by the positive values in Table~\ref{table:terrain-loss-5min}. The site is in the northern hemisphere, thus the sun is to the south, and a south-facing slope will exhibit a gain. Comparing the in-plane and follows terrain results of slope aware backtracking, some difference is evident. This difference illustrates that slope-aware backtracking can avoid shade when the tracker axes are coplanar, but shade will occur with non-planar tracker axes on undulating terrain. The result suggests that putting the tracker axes in the same plane as much as possible (removing undulations in terrain) and using slope-aware backtracking will maximize energy yield. When following terrain, slope-aware backtracking improves performance over standard backtracking by 2.0-2.3\%. Overall, standard backtracking on terrain incurs \textasciitilde 2\% loss compared to flat horizontal ground, and slope-aware backtracking recovers that \textasciitilde 2\% loss. Therefore, the tracker terrain loss for slope-aware backtracking is near zero.
+
+The same simulations for 5-minute input data were performed for 1-hour input data. An additional simulation was performed for the layout plane with a N-S tracker axis tilt but no E-W slope. Table~\ref{table:energy-1hr} shows the energy yield from the hourly data simulations and Table~\ref{table:terrain-loss-1hr} shows the tracker terrain losses compared to horizontal. 
 
 \begin{table}[htbp]
-\caption{Energy Yield for Tracker Layouts for 1-hour Input Data with Standard Backtracking on Horizontal Ground or Ground with no East-West slope}
+\caption{Energy Yield for Tracker Layouts for 1-Hour Input Data}
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|c|}
 \hline
 \textbf{Lay-}& \textbf{\textit{Terrain}}& \textbf{\textit{GI}}&        \textbf{\textit{Yield}}&        \textbf{\textit{Shading}}& \textbf{\textit{Mismatch}} \\
 \textbf{outs}& \textbf{\textit{Mode}}&    \textbf{\textit{$kWh/m^2$}}& \textbf{\textit{$kWh / kW_p$}}& \textbf{\textit{\%}}&      \textbf{\textit{\%}} \\
+\hline
+\multicolumn{6}{|c|}{\textit{Standard backtracking}} \\
 \hline
 1& Horiz.& 2029.6&  1668.7& 3.1& 0 \\
  & No EW & 2049.9&  1707.2& 1.8& 0 \\
@@ -298,20 +295,18 @@ The tracker terrain losses calculated with (\ref{eq:tracker-terrain-loss}) for t
 3& Horiz.& 2029.6&  1671.4& 2.9& 0 \\
  & No EW & 2052.7&  1706.3& 2.0& 0 \\
 \hline
-\end{tabular}
-\label{table:no-east-west-5min}
-\end{center}
-\end{table}
-
-When slope-aware backtracking is used, the tracker terrain losses using (\ref{eq:tracker-terrain-loss}) for the results in Table~\ref{table:slope-1hr} are 2.5\%, 1.9\%, and 1.7\% for 1, 2, anr 3 layouts respectively. Even more interestingly, we see by comparing Table~\ref{table:slope-1hr} and Table~\ref{table:no-east-west-5min} that slope-aware backtracking for the in-plane array was about the same as standard backtracking on the no east-west plane, and also as with the 5-minute input, we see that trackers over terrain with slope-aware backtracking perform about as well as trackers in a horizontal plane with standard backtracking. So this even further confirms that slope-aware backtracking eliminates the losses from east-west slopes. Compared to standard backtracking, slope-aware backtracking for trackers over terrain improves performance by 1.9\%, 2.2\%, and 2.3\% for 1, 2, and 3 layouts respectively. This is consistently about the same as the tracker terrain loss for this particular site with a southwest slope. Therefore, it seems that the east-west slope is the main cause of tracker terrain losses at this particular site, and that slope-aware backtracking seems to recover those losses. Furthermore, when comparing the best output from an in-plane array with slope-aware backtracking to the worst output from standard backtracking over terrain, the loss is 4.3\%, 4.1\%, and 3.9\%. Again, we see that comparing the performance of the array over terrain to the horizontal case underestimates the tracker terrain loss because it fails to account for the terrain in both directions, it fails to capture tilt-gain from the southern axis tilt, and it only accounts for the loss from the east-west slope. Basically it only accounts for the inability of standard backtracking to account for cross-axis slope.
-
-\begin{table}[htbp]
-\caption{Energy Yield for Tracker Layouts for 1-hour Input Data with Slope-Aware Backtracking}
-\begin{center}
-\begin{tabular}{|c|c|c|c|c|c|}
+\multicolumn{6}{|c|}{\textit{Standard backtracking}} \\
 \hline
-\textbf{Lay-}& \textbf{\textit{Terrain}}& \textbf{\textit{GI}}&        \textbf{\textit{Yield}}&        \textbf{\textit{Shading}}& \textbf{\textit{Mismatch}} \\
-\textbf{outs}& \textbf{\textit{Mode}}&    \textbf{\textit{$kWh/m^2$}}& \textbf{\textit{$kWh / kW_p$}}& \textbf{\textit{\%}}&      \textbf{\textit{\%}} \\
+1& In Plane& 2049.9&  1628.9& 2.8& 3.6 \\
+ & Follow&         &  1631.1& 2.6& 3.6 \\
+\hline
+2& In Plane& 2051.5&  1635.0& 2.7& 3.4 \\
+ & Follow&         &  1635.9& 2.6& 3.4 \\
+\hline
+3& In Plane& 2052.7&  1639.8& 2.6& 3.2 \\
+ & Follow&         &  1640.3& 2.6& 3.2 \\
+\hline
+\multicolumn{6}{|c|}{\textit{Slope-aware backtracking}} \\
 \hline
 1& In Plane& 2048.7&  1704.7& 1.9& 0 \\
  & Follow&         &  1662.1& 2.1& 2.2 \\
@@ -323,36 +318,75 @@ When slope-aware backtracking is used, the tracker terrain losses using (\ref{eq
  & Follow&         &  1678.1& 2.0& 1.5 \\
 \hline
 \end{tabular}
-\label{table:slope-1hr}
+\label{table:energy-1hr}
 \end{center}
 \end{table}
 
-The last component of this study was to examine the hypothesis that splitting the array into multiple layouts each with their own axis tilt and cross-axis slope would decrease tracker terrain loss. We see that in general, for this particular site, splitting the site into 3 layouts increased performance and decreased the tracker terrain loss by about half a percent of the output. More importantly, if maximum performance is desired, then in-plane trackers are required, and splitting the array into layouts each with their own axis tilt and cross-axis slope can minimize the amount of cut and fill required to build the site by decreasing the range of pile heights to constrain the tracker axes all to the same plane.
-
-\subsection{Uneven Terrain Shade Loss Model}
-The results of the DNV simple model are shown in Table~\ref{table:uneven-terrain}. The tracker terrain loss estimated for standard tracking is -2.1\% considering both E-W and N-S slopes. When the site is modeled as flat horizontal and compared with south-facing axis tilt (no E-W component), flat horizontal is -2.0\% lower than south-facing axis tilt (the south-facing axis tilt provides an energy gain to the array). When this factor is applied, the net impact results in -4.1\% compared to south-facing axis tilt (no E-W component). These results align with the loss predicted by SolarFarmer of 2.2\% compared to horizontal and the 4.5\% loss compared to south-facing axis tilt (no E-W component).
 
 \begin{table}[htbp]
-\caption{Uneven Terrain Shade Loss Model}
+\caption{Tracker Terrain Loss for 1-Hour Input Data}
 \begin{center}
 \begin{tabular}{|c|c|c|c|}
 \hline
-\textbf{Energy impact}& \textbf{\textit{Standard}}& \textbf{\textit{Slope-aware}} \\
-\textbf{of terrain}   & \textbf{\textit{tracking}} & \textbf{\textit{Tracking}} \\
+\textbf{Lay-}& \textbf{\textit{Standard}}& \textbf{\textit{Slope-aware}}& \textbf{\textit{$\Delta$ Slope-aware}} \\
+\textbf{outs}& \textbf{\textit{Backtrack}}&    \textbf{\textit{Backtrack}}& \textbf{\textit{vs. Standard}} \\
 \hline
-\textbf{\textit{Compared to horizontal}} & & \\
+\multicolumn{4}{|c|}{\textit{In-plane}} \\
 \hline
-E-W slope impact & -3.2\% & -0.4\% \\
+1& -2.4\% & +2.2\% &  +4.7\% \\
 \hline
-N-S slope impact  & +1.1\% & +1.1\% \\
+2& -2.1\% & +2.1\% &  +4.3\% \\
 \hline
-Net impact vs horizontal & -2.1\% & +0.7\% \\
+3& -1.9\% & +2.1\% &  +4.1\% \\
 \hline
-\textbf{\textit{Compared to south axis tilt (no EW)}} & & \\
+\multicolumn{4}{|c|}{\textit{Follows terrain}} \\
 \hline
-Flat horizontal & -2.0\% & -2.0\% \\
+1& -2.3\% & -0.4\% &  +1.9\% \\
 \hline
-Net impact vs south axis tilt (no EW) & -4.1\% & -1.3\% \\
+2& -2.0\% & +0.1\% &  +2.2\% \\
+\hline
+3& -1.9\% & +0.4\% &  +2.3\% \\
+\hline
+\end{tabular}
+\label{table:terrain-loss-1hr}
+\end{center}
+\end{table}
+
+Comparing Table~\ref{table:energy-1hr} with Table~\ref{table:energy-5min}, the hourly results were similar to that of the 5-minute data, but had a small increase in output and global incident irradiance. A separate study which is to be presented later this year will examine this issue more closely. 
+
+From the energy yields of the hourly data in Table~\ref{table:energy-1hr}, the south-facing tilt with no E-W plane showed about 2\% gain to flat horizontal ground. As with the 5-minute results, slope-aware backtracking for in-plane mode was about the same as standard backtracking on the no east-west plane. Meanwhile, slope aware backtracking for follows terrain mode perform about as well as trackers in a horizontal plane with standard backtracking. This result supports the concept that slope-aware backtracking eliminates the losses from east-west slopes. Based on these results, the east-west slope seems to be the main cause of tracker terrain losses at this particular site and slope-aware backtracking recovers those losses.
+Combining the 2\% loss from standard tracking on terrain to horizontal and the 2\% loss from horizontal to no E-W plane, standard tracking on terrain exhibits \textasciitilde 4\% loss compared to south-facing no E-W plane. Furthermore, comparing the best output from an in-plane array with slope-aware backtracking to the worst output from standard backtracking over terrain, the loss is also about \textasciitilde 4\%. Of note is that comparing the performance of follows terrain to the horizontal case (\textasciitilde 2\%) fails to capture the gain from the southern axis tilt, and only accounts for the loss from the E-W slope. The follows terrain versus horizontal only accounts for the inability of standard backtracking to account for E-W cross-axis slope.
+
+The last component of this study was to examine whether subdividing the array would decrease tracker terrain loss. The arrays were split into multiple layouts each with their own N-S axis tilt and E-W cross-axis slope. In general for this particular site, splitting the site into 3 layouts reduced tracker terrain loss by \textasciitilde 0.5\%. More importantly, for maximum performance in-plane trackers are needed. Splitting the array into layouts each with their own axis tilt and cross-axis slope can minimize the amount of cut and fill required to build the site by decreasing the range of pile heights to constrain the tracker axes all to the same plane.
+
+\subsection{Uneven Terrain DNV Shade Loss Model}
+The results of the DNV terrain shade loss model are shown in Table~\ref{table:uneven-terrain}. Based on the site slope analysis, the site area is 68\% facing south (2.8\degree  slope) and 32\% facing north (1.2\degree  slope). The E-W effective slope was calculated to be 4.3\%, which is consistent with the site characterization in Table~\ref{table:ew-slope-summary}. 
+
+The tracker terrain loss for standard tracking was estimated to be \textminus2.1\% compared to horizontal considering both E-W and N-S slopes. Further, the energy yield for horizontal was \textminus 2.0\% lower than south-facing axis tilt (the south-facing axis tilt provides an energy gain). The net impact was a difference of \textminus4.1\% comparing terrain to south-facing axis tilt (no E-W component). 
+
+The DNV shade loss model results aligned well with the tracker terrain loss predicted by SolarFarmer. For standard backtracking terrain impact compared to flat horizontal, SolarFarmer resulted in \textminus1.7-2.3\%, while the DNV model yielded \textminus2.1\%. When compared to south-facing axis tilt (no E-W component), SolarFarmer resulted in \textasciitilde4\%, while the DNV model yielded \textminus4.1\%. For slope-aware backtracking, the DNV model showed almost complete recovery of the E-W slope impact (-0.4\% energy impact). The slope-aware backtracking terrain impact compared to flat horizontal for the DNV model resulted in more energy gain, +0.7\% compared to SolarFarmer's \textminus0.4\% to +0.5\%. However, the DNV model considers the +0.7\% as an ideal shade recovery case. In practical application in the field, DNV estimates custom, non-standard backtracking to recover only 70\% of the ideal case based on limited field data. When this practical factor is applied, the DNV model for slope-aware backtracking results in tracker terrain loss of +0.5\%, which is aligned with the SolarFarmer result.
+
+\begin{table}[htbp]
+\caption{Tracker Terrain Loss DNV Model}
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Energy impact}& \textbf{\textit{Standard}}& \textbf{\textit{Slope-aware}}& \textbf{\textit{$\Delta$ Slope-aware}} \\
+  & \textbf{\textit{Backtrack}} & \textbf{\textit{Backtrack}} & \textbf{\textit{vs. Standard}}\\
+\hline
+\multicolumn{4}{|c|}{\textit{Compared to horizontal}} \\
+\hline
+E-W slope impact & -3.2\% & -0.4\% & +2.8\% \\
+\hline
+N-S slope impact  & \multicolumn{2}{|c|}{+1.1\%}  & - \\
+\hline
+Net terrain impact & -2.1\% & +0.7\% & +2.8\% \\
+\hline
+\multicolumn{4}{|c|}{\textit{Compared to south axis tilt (no E-W)}} \\
+\hline
+Flat horizontal & \multicolumn{2}{|c|}{-2.0\%} & - \\
+\hline
+Net terrain impact & -4.1\% & -1.3\% & +2.8\%  \\
 \hline
 \end{tabular}
 \label{table:uneven-terrain}
@@ -360,7 +394,7 @@ Net impact vs south axis tilt (no EW) & -4.1\% & -1.3\% \\
 \end{table}
 
 \section{Conclusions}
-The Hopewell Friends Solar power plant was simulated with SolarFarmer to calculate tracker terrain loss. This site has variable terrain and an average 4\% southwest slope. When using standard backtracking, the tracker terrain loss for the entire site was 2.2\% when compared to horizontal and using hourly input. When dividing the site into two and three layouts, the tracker terrain loss decreased to 2.0\% and 1.8\% respectively. The simulations were repeated with 5-minute and 1-hour input data, but the tracker terrain loss change was marginal. A future study will examine the effects of input data resolution and backtracking algorithms. The simulations were also repeated with slope-aware backtracking algorithm, which indicated that for this particular site, the tracker terrain loss was caused by the east-west slope and was completely recovered by using slope-aware backtracking. Furthermore, the maximum loss was around 4\% for trackers on terrain when compared to the best in-plane (not horizontal) array using slope-aware backtracking, indicating that calculating tracker terrain loss against the horizontal for this particular site neglects the tilt-gain from the south-facing slope. Since this site had a mostly southwest slope, further work is needed to study more sites, especially those with more complex terrain. SolarFarmer was compared to a simpler model developed by DNV. The simple DNV model estimate, 3.4\%, was bounded by the SolarFarmer predicted tracker terrain losses versus horizontal trackers with standard backtracking, 2.2\%, and trackers with a southern axis tilt but no east-west slope, 4.5\%. % MinWah please update this section
+The Hopewell Friends Solar power plant was simulated with SolarFarmer to calculate tracker terrain loss. This site has variable terrain and an average 4\% southwest slope. The study examined tracker terrain loss using different time intervals, tracker placement, array subdivisions, and backtracking algorithms. With standard backtracking, the tracker terrain loss from SolarFarmer was 2.2\% when compared to horizontal and using 5-minute input data. When dividing the site into three layouts, the tracker terrain loss decreased about 0.5\%. The simulations were repeated with 5-minute and 1-hour input data, but the tracker terrain loss change was marginal. A future study will examine the effects of input data resolution and backtracking algorithms. The simulations were also repeated with slope-aware backtracking, which indicated that for this particular site, the tracker terrain loss was caused by the E-W slope and was recoverable with slope-aware backtracking. Furthermore, trackers on terrain compared to the best in-plane (not horizontal) array using slope-aware backtracking showed a difference of \textasciitilde4\%. This result shows that calculating tracker terrain loss against the horizontal for this particular site neglects the tilt-gain from the south-facing slope. SolarFarmer results were also compared with an independent DNV terrain shade loss model. The DNV model was consistent with SolarFarmer's results with 2.1\% net terrain impact compared to horizontal and 4.1\% difference when the terrain impact is compared to a south-facing tilt rather than horizontal. When considering practical in-field application compared to ideal shade recovery, the terrain impact with slope aware backtracking for the DNV model was similar to SolarFarmer's result of +0.5\% compared to horizontal. This site had a mostly southwest slope and further work is needed to study tracker terrain losses at more sites, especially those with more complex terrain. In addition, field data of custom backtracking is currently limited in the industry and should be examined to determine how it compares with simulations.
 
 \section*{Acknowledgment}
 
